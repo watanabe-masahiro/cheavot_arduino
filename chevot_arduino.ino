@@ -103,7 +103,7 @@ void cheat_swap_highest_score() {
   real_display_map[max_index] = real_display_map[fanantial_index]; 
   real_display_map[fanantial_index] = tmp;
   stop_timer();
-  debug_print_to_serial();
+  // debug_print_to_serial();
 }
 
 void loop() {
@@ -140,6 +140,11 @@ void loop() {
     for (int i=0; i<3; i++) {
       if (digitalRead(button_pins[i]) == HIGH) {
         display_votes[i]++;
+        if (i == real_display_map[0]) {
+            Serial.write('0'+NumParse(display_votes[real_display_map[0]], 1));
+            Serial.write('0'+NumParse(display_votes[real_display_map[0]], 2));
+            Serial.write("\n");
+        }
         start_timer();
       }
     }
