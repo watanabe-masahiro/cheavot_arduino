@@ -33,7 +33,7 @@ void setup() {
   for (int i = 58; i <= 66; i++) {
     pinMode(i, OUTPUT);
   }
-  for (int i = 0; i <= 3; i++) {
+  for (int i = 0; i < 3; i++) {
     pinMode(button_pins[i], INPUT);
   }
   pinMode(15, OUTPUT);
