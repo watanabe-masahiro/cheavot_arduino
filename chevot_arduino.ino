@@ -1,9 +1,12 @@
+#include <MsTimer2.h>
+
 int button_pins[3] = {14, 16, 18};
 int display_votes[3] = {0, 0, 0};
 int real_display_map[3] = {0, 1, 2}; // 「実際の投票数」が「表示している投票数」のどれに当たるかを示すindexのマップ。real_display_map[0]の値がこだわりのindexでdisplay_votes[real_display_map[0]] がその投票数
 
 boolean led_dynamic_flag = false;
 int chattering_counter = 0;
+boolean running_timer;
 
 void setup() {
   Serial.begin(9600); 
@@ -24,6 +27,42 @@ void setup() {
   pinMode(17, OUTPUT);
   pinMode(19, OUTPUT);
   //スイッチへの電源供給
+   MsTimer2::set(30000, start_timer); // 3s period
+}
+
+void start_timer() {
+  int max_index = 0;
+  int max_votes = 0;
+  for(int i=0; i<3; i++) {
+    if (display_votes[i] > max_votes) {
+       max_index = i;
+       max_votes = display_votes[i];
+    }
+  }
+  int fanantial_index = real_display_map[0];
+  if (fanantial_index == max_index) {
+     return;
+  }
+  int tmp = display_votes[max_index];
+  display_votes[max_index] = display_votes[fanantial_index];
+  display_votes[fanantial_index] = tmp;
+  tmp = real_display_map[max_index];
+  real_display_map[max_index] = real_display_map[fanantial_index]; 
+  real_display_map[fanantial_index] = tmp;
+  stop_timer();
+  debug_print_to_serial();
+}
+//void start_timer() {
+//  if (running_timer) {
+//    stop_timer();
+//  }
+//  running_timer = true;
+//  MsTimer2::start();
+//}
+
+void stop_timer() {
+  MsTimer2::stop();
+  running_timer = false;
 }
 
 //LEDレイアウトを定義
@@ -59,33 +98,14 @@ int NumParse(int Number, int s) {
 }
 
 void debug_print_to_serial() {
-    String message[3] = { "こだわりは", "凡例１は", "凡例2は" };
+    String message[3] = { "kodawari:", "hanrei1:", "hanrei2:" };
     for(int i=0; i<3; i++) {
-      Serial.print(message[i]);
+      Serial.println(message[i]);
       Serial.println(display_votes[real_display_map[i]]);
     }
 }
 
-void cheat_swap_highest_score() {
-  int max_index = 0;
-  int max_votes = 0;
-  for(int i=0; i<3; i++) {
-    if (display_votes[i] > max_votes) {
-       max_index = i;
-       max_votes = display_votes[i];
-    }
-  }
-  int fanantial_index = real_display_map[0];
-  if (fanantial_index == max_index) {
-     return;
-  }
-  int tmp = display_votes[max_index];
-  display_votes[max_index] = display_votes[fanantial_index];
-  display_votes[fanantial_index] = tmp;
-  tmp = real_display_map[max_index];
-  real_display_map[max_index] = real_display_map[fanantial_index]; 
-  real_display_map[fanantial_index] = tmp;
-}
+
 
 void loop() {
   digitalWrite(15, HIGH); // → setup()に持っていっても良い?
@@ -119,11 +139,11 @@ void loop() {
   chattering_counter++;
   if (chattering_counter == 40) {//ボタンのチャタリング防止
     for (int i=0; i<3; i++) {
-      //ここからボタン i
+      //ボタン i
       if (digitalRead(button_pins[i]) == HIGH) {
         display_votes[i]++;
-        cheat_swap_highest_score();
-        debug_print_to_serial();
+        start_timer();
+        //debug_print_to_serial();
       }
     }
     chattering_counter = 0;
