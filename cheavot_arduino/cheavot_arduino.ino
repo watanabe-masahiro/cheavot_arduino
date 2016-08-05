@@ -92,16 +92,15 @@ void cheat_swap_highest_score() {
        max_votes = display_votes[i];
     }
   }
-  int fanantial_index = real_display_map[0];
-  if (fanantial_index == max_index) {
+  if (max_index == 0) {
      return;
   }
   int tmp = display_votes[max_index];
-  display_votes[max_index] = display_votes[fanantial_index];
-  display_votes[fanantial_index] = tmp;
+  display_votes[max_index] = display_votes[0];
+  display_votes[0] = tmp;
   tmp = real_display_map[max_index];
-  real_display_map[max_index] = real_display_map[fanantial_index]; 
-  real_display_map[fanantial_index] = tmp;
+  real_display_map[max_index] = real_display_map[0];
+  real_display_map[0] = tmp;
   stop_timer();
   // debug_print_to_serial();
 }

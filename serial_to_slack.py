@@ -7,8 +7,8 @@ import urllib
 import pycurl
 
 def init_serial():
-    # default_serial_path = '/dev/cu.usbserial-A600dON0' # for Aruduino
-    # default_serial_path = '/dev/cu.usbserial-A600dON0' # for Aruduino
+    default_serial_path = '/dev/cu.usbserial-A600dON0' # for Aruduino mini pro
+    # default_serial_path = '/dev/cu.usbmodem1421' # for Aruduino
     return serial.Serial(default_serial_path, 9600, bytesize=serial.EIGHTBITS)
     # return None
 
