@@ -1,6 +1,5 @@
 #include <MsTimer2.h>
 boolean running_timer;
-int real_vote;
 
 void start_timer() {
   if (running_timer) {
@@ -17,7 +16,7 @@ void stop_timer() {
 
 int button_pins[3] = {14, 16, 18};
 int display_votes[3] = {0, 0, 0};
-int real_display_map[3] = {0, 1, 2}; // 「実際の投票数」が「表示している投票数」のどれに当たるかを示すindexのマップ。real_display_map[0]の値がこだわりのindexでdisplay_votes[real_display_map[0]] がその投票数
+int real_votes[3] = {0, 0, 0};
 
 boolean led_dynamic_flag = false;
 int chattering_counter = 0;
@@ -42,7 +41,6 @@ void setup() {
   pinMode(19, OUTPUT);
   //スイッチへの電源供給
   MsTimer2::set(3000, cheat_swap_highest_score); // 3s period
-  real_vote = 0;
 }
 
 //LEDレイアウトを定義
@@ -81,7 +79,7 @@ void debug_print_to_serial() {
     String message[3] = { "kodawari:", "hanrei1:", "hanrei2:" };
     for(int i=0; i<3; i++) {
       Serial.print(message[i]);
-      Serial.println(display_votes[real_display_map[i]]);
+      Serial.println(real_votes[i]);
     }
 }
 
@@ -100,9 +98,6 @@ void cheat_swap_highest_score() {
   int tmp = display_votes[max_index];
   display_votes[max_index] = display_votes[0];
   display_votes[0] = tmp;
-  tmp = real_display_map[max_index];
-  real_display_map[max_index] = real_display_map[0];
-  real_display_map[0] = tmp;
   stop_timer();
   // debug_print_to_serial();
 }
@@ -141,10 +136,10 @@ void loop() {
     for (int i=0; i<3; i++) {
       if (digitalRead(button_pins[i]) == HIGH) {
         display_votes[i]++;
+        real_votes[i]++;
         if (i == 0) {
-            real_vote++;
-            Serial.write('0'+NumParse(real_vote, 1));
-            Serial.write('0'+NumParse(real_vote, 2));
+            Serial.write('0'+NumParse(real_votes[0], 1));
+            Serial.write('0'+NumParse(real_votes[0], 2));
             Serial.write("\n");
         }
         start_timer();
@@ -154,3 +149,4 @@ void loop() {
   }
   delay(5);
 }
+
