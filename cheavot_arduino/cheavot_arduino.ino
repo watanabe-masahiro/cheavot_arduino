@@ -1,5 +1,6 @@
 #include <MsTimer2.h>
 boolean running_timer;
+int real_vote;
 
 void start_timer() {
   if (running_timer) {
@@ -41,6 +42,7 @@ void setup() {
   pinMode(19, OUTPUT);
   //スイッチへの電源供給
   MsTimer2::set(3000, cheat_swap_highest_score); // 3s period
+  real_vote = 0;
 }
 
 //LEDレイアウトを定義
@@ -139,9 +141,10 @@ void loop() {
     for (int i=0; i<3; i++) {
       if (digitalRead(button_pins[i]) == HIGH) {
         display_votes[i]++;
-        if (i == real_display_map[0]) {
-            Serial.write('0'+NumParse(display_votes[real_display_map[0]], 1));
-            Serial.write('0'+NumParse(display_votes[real_display_map[0]], 2));
+        if (i == 0) {
+            real_vote++;
+            Serial.write('0'+NumParse(real_vote, 1));
+            Serial.write('0'+NumParse(real_vote, 2));
             Serial.write("\n");
         }
         start_timer();
